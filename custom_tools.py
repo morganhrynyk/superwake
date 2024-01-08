@@ -1,11 +1,12 @@
 import os
 import pandas as pd
 import re
+from pyproj import Transformer
 
 
 # Specify the folder path where your CSV files are located
 
-def merge_all_gimble_csv(folder_path: str, out_csv_name: str):
+def merge_all_gimble_csvs(folder_path: str, out_csv_name: str):
     # Initialize an empty DataFrame to store the merged data
     master_df = pd.DataFrame()
 
@@ -35,10 +36,27 @@ def merge_all_gimble_csv(folder_path: str, out_csv_name: str):
                     # Append the merged DataFrame to the master DataFrame
                     master_df = pd.concat([master_df, merged_df])
 
-    print("Merging and appending completed.")
-
-    # Save the master DataFrame to a new CSV file
-    master_df.to_csv(os.path.join(folder_path, out_csv_name + '.csv'), index=False)
-
-    print("CSV file created: " + out_csv_name + '.csv')
     return master_df
+
+
+def convert_latlon_to_utm(row):
+
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:32609")
+    # Extract latitude and longitude from the row
+    lat = row['latitude [decimal degrees]']
+    lon = row['longitude [decimal degrees]']
+
+    # Convert latitude and longitude to UTM coordinates
+    utm_easting, utm_northing = transformer.transform(lat, lon)
+
+    # Return the UTM coordinates
+    return pd.Series({'utm_easting': utm_easting, 'utm_northing': utm_northing})
+
+
+def apply_utm_conversion(gimble_summary_csv,):
+    gimble_summary_df = pd.DataFrame(gimble_summary_csv)
+    # Apply the conversion function to each row
+    df_utm = gimble_summary_df.apply(convert_latlon_to_utm, axis=1)
+    # Concatenate the UTM coordinates with the original DataFrame
+    df_with_utm = pd.concat([gimble_summary_df, df_utm], axis=1)
+    return df_with_utm
