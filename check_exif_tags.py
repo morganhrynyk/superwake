@@ -17,7 +17,7 @@ def getExif(filepath, selectedTags=None):
     return exif
 
 with ExifToolHelper() as et:
-    print(et.get_tags(r'Y:\Superwake\Shoreline\BC_shoreline\03_bc_shoreline_working\example_imgs\DSC00029.jpg', tags='GPSLatitude'))
+    print(et.get_tags(r'Y:\Superwake\Shoreline\BC_shoreline\03_bc_shoreline_working\example_imgs\DSC00022.JPG', tags=['GPSLatitude', 'GPSLongitude', 'GPSAltitude']))
 
 #exif = getExif(r'Y:\Superwake\Shoreline\BC_shoreline\03_bc_shoreline_working\example_imgs\DSC00029.jpg')
 #df = pd.DataFrame([exif])
